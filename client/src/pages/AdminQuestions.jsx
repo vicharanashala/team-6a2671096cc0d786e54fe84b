@@ -7,14 +7,26 @@ const AdminQuestions = () => {
   const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
   const [filterStatus, setFilterStatus] = useState('new');
-  const [suggestedFAQ, setSuggestedFAQ] = useState(null);
+  const [suggestedFaqs, setSuggestedFaqs] = useState([]);
   const [suggesting, setSuggesting] = useState(false);
   const [grouping, setGrouping] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [importData, setImportData] = useState('');
+  const [editingSuggestedId, setEditingSuggestedId] = useState(null);
+  const [editSuggestedData, setEditSuggestedData] = useState({ question: '', answer: '', category: '' });
+
+  const fetchSuggestedFaqs = async () => {
+    try {
+      const response = await api.get('/api/faqs', { params: { status: 'suggested' } });
+      setSuggestedFaqs(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     fetchQuestions();
+    fetchSuggestedFaqs();
   }, [filterStatus]);
 
   const fetchQuestions = async () => {
@@ -74,36 +86,47 @@ const AdminQuestions = () => {
   };
 
   const handleSuggestFAQ = async () => {
-    if (selectedIds.length === 0) {
-      setError('Select at least 1 question.');
-      return;
-    }
     setSuggesting(true);
     setError(null);
     try {
-      const response = await api.post('/api/questions/suggest-faq', { questionIds: selectedIds });
-      setSuggestedFAQ(response.data);
+      const response = await api.post('/api/questions/auto-suggest');
+      alert(response.data.message);
+      fetchSuggestedFaqs();
+      fetchQuestions();
     } catch (err) {
-      setError('Failed to generate FAQ suggestion. ' + (err.response?.data?.error || 'Check if Gemini API key is configured.'));
+      setError('Failed to auto-suggest FAQs. ' + (err.response?.data?.error || 'Check if Gemini API key is configured.'));
     } finally {
       setSuggesting(false);
     }
   };
 
-  const handleCreateFAQ = async () => {
-    if (!suggestedFAQ) return;
+  const approveSuggested = async (id) => {
     try {
-      await api.post('/api/faqs', {
-        question: suggestedFAQ.suggested.question,
-        answer: suggestedFAQ.suggested.answer,
-        category: suggestedFAQ.category,
-        source_questions: suggestedFAQ.source_questions
-      });
-      setSuggestedFAQ(null);
-      setSelectedIds([]);
+      await api.patch(`/api/faqs/${id}/status`, { status: 'published' });
+      fetchSuggestedFaqs();
       fetchQuestions();
     } catch (err) {
-      setError('Failed to create FAQ. ' + (err.response?.data?.error || ''));
+      setError('Failed to approve suggestion.');
+    }
+  };
+
+  const rejectSuggested = async (id) => {
+    if (!confirm('Are you sure you want to reject and delete this suggestion?')) return;
+    try {
+      await api.delete(`/api/faqs/${id}`);
+      fetchSuggestedFaqs();
+    } catch (err) {
+      setError('Failed to reject suggestion.');
+    }
+  };
+
+  const saveSuggestedEdit = async (id) => {
+    try {
+      await api.put(`/api/faqs/${id}`, editSuggestedData);
+      setEditingSuggestedId(null);
+      fetchSuggestedFaqs();
+    } catch (err) {
+      setError('Failed to save edit.');
     }
   };
 
@@ -197,6 +220,13 @@ const AdminQuestions = () => {
           >
             Bulk Import
           </button>
+          <button
+            onClick={handleSuggestFAQ}
+            disabled={suggesting}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            {suggesting ? 'Auto-Grouping...' : 'Auto-Group & Suggest FAQs'}
+          </button>
         </div>
       </div>
 
@@ -219,14 +249,65 @@ const AdminQuestions = () => {
               >
                 {grouping ? 'Grouping...' : 'Group'}
               </button>
-              <button
-                onClick={handleSuggestFAQ}
-                disabled={suggesting}
-                className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm"
-              >
-                {suggesting ? 'Generating with AI...' : 'Suggest FAQ (Gemini AI)'}
-              </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {suggestedFaqs.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-bold text-yellow-800 mb-4">AI Suggested FAQs</h2>
+          <div className="space-y-4">
+            {suggestedFaqs.map(faq => (
+              <div key={faq._id} className="bg-white p-4 rounded-lg shadow-sm border border-yellow-100">
+                {editingSuggestedId === faq._id ? (
+                  <div className="space-y-3">
+                    <input 
+                      type="text" 
+                      value={editSuggestedData.question}
+                      onChange={e => setEditSuggestedData({...editSuggestedData, question: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-md font-semibold text-lg"
+                      placeholder="Question"
+                    />
+                    <textarea 
+                      value={editSuggestedData.answer}
+                      onChange={e => setEditSuggestedData({...editSuggestedData, answer: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-md"
+                      rows="3"
+                      placeholder="Answer"
+                    />
+                    <input 
+                      type="text" 
+                      value={editSuggestedData.category}
+                      onChange={e => setEditSuggestedData({...editSuggestedData, category: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                      placeholder="Category"
+                    />
+                    <div className="flex gap-2 pt-2">
+                      <button onClick={() => saveSuggestedEdit(faq._id)} className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">Save</button>
+                      <button onClick={() => setEditingSuggestedId(null)} className="px-3 py-1.5 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm font-medium">Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="font-semibold text-lg">{faq.question}</h3>
+                    <p className="text-gray-600 mt-2 whitespace-pre-wrap">{faq.answer}</p>
+                    <div className="text-sm text-gray-500 mt-2">
+                      Category: <span className="bg-gray-100 px-2 py-1 rounded">{faq.category}</span>
+                      <span className="ml-4">From {faq.source_questions?.length} questions</span>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <button onClick={() => approveSuggested(faq._id)} className="px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium">Approve</button>
+                      <button onClick={() => {
+                        setEditingSuggestedId(faq._id);
+                        setEditSuggestedData({ question: faq.question, answer: faq.answer, category: faq.category });
+                      }} className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">Edit</button>
+                      <button onClick={() => rejectSuggested(faq._id)} className="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium">Reject</button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -330,35 +411,7 @@ const AdminQuestions = () => {
         </div>
       )}
 
-      {suggestedFAQ && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">AI-Generated FAQ</h2>
-            <div className="mb-4">
-              <label className="block font-medium mb-1 text-sm text-gray-600">Question:</label>
-              <p className="bg-blue-50 p-3 rounded-lg">{suggestedFAQ.suggested.question}</p>
-            </div>
-            <div className="mb-4">
-              <label className="block font-medium mb-1 text-sm text-gray-600">Answer:</label>
-              <p className="bg-gray-50 p-3 rounded-lg">{suggestedFAQ.suggested.answer}</p>
-            </div>
-            <div className="mb-4">
-              <label className="block font-medium mb-1 text-sm text-gray-600">Category:</label>
-              <p className="bg-gray-50 p-3 rounded">{suggestedFAQ.category}</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleCreateFAQ}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >Create FAQ</button>
-              <button
-                onClick={() => setSuggestedFAQ(null)}
-                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-              >Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {importModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

@@ -6,7 +6,7 @@ const faqSchema = new mongoose.Schema({
   category: { type: String, default: 'general' },
   status: {
     type: String,
-    enum: ['draft', 'approved', 'published', 'rejected'],
+    enum: ['suggested', 'draft', 'approved', 'published', 'rejected'],
     default: 'draft'
   },
   source_questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],

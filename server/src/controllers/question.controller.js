@@ -1,3 +1,4 @@
+import FAQ from '../models/FAQ.js';
 import Question from '../models/Question.js';
 import Activity from '../models/Activity.js';
 import User from '../models/User.js';
@@ -195,66 +196,78 @@ export const groupQuestions = async (req, res) => {
   }
 };
 
-export const suggestFAQ = async (req, res) => {
+export const autoSuggestFAQs = async (req, res) => {
   try {
-    const { questionIds } = req.body;
+    const questions = await Question.find({ status: 'new' });
 
-    if (!questionIds || !Array.isArray(questionIds) || questionIds.length === 0) {
-      return res.status(400).json({ error: 'Question IDs are required.' });
+    if (questions.length < 3) {
+      return res.status(400).json({ error: 'Not enough new questions to analyze (minimum 3 required).' });
     }
 
-    const questions = await Question.find({ _id: { $in: questionIds } });
-
-    if (questions.length === 0) {
-      return res.status(404).json({ error: 'No questions found.' });
-    }
-
-    const questionTexts = questions.map(q => q.text).join('\n');
+    const questionData = questions.map(q => `ID: ${q._id}, Text: ${q.text}, Category: ${q.category}`).join('\n');
     
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
     
-    const prompt = `Based on these user questions, generate one comprehensive FAQ pair:\n\nQuestions:\n${questionTexts}\n\nGenerate a JSON response with this exact structure:
-{
-  "question": "A clear, concise question that covers the intent of all the input questions",
-  "answer": "A comprehensive, helpful answer that addresses all the input questions"
-}
-Only return valid JSON, no markdown or extra text.`;
+    const prompt = `Analyze these user questions and group them by similarity.
+For any group that contains 3 or more similar questions, generate a comprehensive FAQ.
+Return a strictly formatted JSON array of objects. Each object should have:
+- "question": A concise FAQ question.
+- "answer": A helpful FAQ answer.
+- "category": The most relevant category.
+- "source_question_ids": An array of the exact _id strings of the input questions that belong to this group.
+
+Here are the questions:
+${questionData}
+
+Only return a valid JSON array, no markdown formatting or extra text.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text().replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-    let faqData;
+    let suggestions = [];
     try {
-      faqData = JSON.parse(text);
+      suggestions = JSON.parse(text);
+      if (!Array.isArray(suggestions)) {
+         suggestions = [suggestions]; // fallback
+      }
     } catch {
       return res.status(500).json({ error: 'Failed to parse AI response.', raw: text });
     }
 
-    const activity = new Activity({
-      type: 'ai_suggestion',
-      description: `AI suggested FAQ: ${faqData.question.substring(0, 50)}...`,
-      entity_type: 'FAQ',
-      user_id: req.user?._id,
-      user_email: req.user?.email,
-      user_name: req.user?.username,
-      metadata: { source_questions_count: questionIds.length, category: questions[0].category },
-      is_ai_generated: true
-    });
-    await activity.save();
-
-    await sendEmail('aiSuggestion', {
-      suggestion: faqData,
-      source_count: questionIds.length,
-      user_name: req.user?.username,
-      user_email: req.user?.email,
-      timestamp: new Date()
-    });
+    const createdFaqs = [];
+    for (const item of suggestions) {
+      if (item.source_question_ids && item.source_question_ids.length >= 3) {
+        const faq = new FAQ({
+          question: item.question,
+          answer: item.answer,
+          category: item.category || 'general',
+          source_questions: item.source_question_ids,
+          status: 'suggested',
+          is_ai_generated: true,
+          created_by: req.user?._id
+        });
+        await faq.save();
+        createdFaqs.push(faq);
+        
+        const activity = new Activity({
+          type: 'ai_suggestion',
+          description: `AI suggested FAQ: ${faq.question.substring(0, 50)}...`,
+          entity_type: 'FAQ',
+          entity_id: faq._id,
+          user_id: req.user?._id,
+          user_email: req.user?.email,
+          user_name: req.user?.username,
+          metadata: { source_questions_count: item.source_question_ids.length, category: faq.category },
+          is_ai_generated: true
+        });
+        await activity.save();
+      }
+    }
 
     res.json({
-      suggested: faqData,
-      source_questions: questionIds,
-      category: questions[0].category
+      message: `Successfully generated ${createdFaqs.length} FAQ suggestions.`,
+      suggested_faqs: createdFaqs
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -142,7 +142,7 @@ export const updateFAQ = async (req, res) => {
     if (answer) updateFields.answer = answer;
     if (category) updateFields.category = category;
     if (status) {
-      const validStatuses = ['draft', 'approved', 'published', 'rejected'];
+      const validStatuses = ['suggested', 'draft', 'approved', 'published', 'rejected'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: 'Invalid status.' });
       }
@@ -167,19 +167,26 @@ export const updateFAQStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ['draft', 'approved', 'published', 'rejected'];
+    const validStatuses = ['suggested', 'draft', 'approved', 'published', 'rejected'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status.' });
     }
 
-    const faq = await FAQ.findByIdAndUpdate(
-      id,
-      { status, updated_at: Date.now() },
-      { new: true }
-    ).populate('created_by', 'username email');
-
+    const faq = await FAQ.findById(id).populate('created_by', 'username email');
     if (!faq) {
       return res.status(404).json({ error: 'FAQ not found.' });
+    }
+    
+    const oldStatus = faq.status;
+    faq.status = status;
+    faq.updated_at = Date.now();
+    await faq.save();
+
+    if (oldStatus === 'suggested' && (status === 'draft' || status === 'approved' || status === 'published')) {
+      await Question.updateMany(
+        { _id: { $in: faq.source_questions } },
+        { status: 'converted_to_faq', updated_at: Date.now() }
+      );
     }
 
     let activityType, emailType;

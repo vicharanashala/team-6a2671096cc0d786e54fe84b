@@ -28,13 +28,6 @@
 
 ---
 
-## Team Members
-
-### Project Lead
-
-| Name | Email | GitHub | Role |
-|------|-------|--------|------|
-| **Vicky Kumar** | npdimagine@gmail.com | [@FiscalMindset](https://github.com/FiscalMindset) | Full Stack Developer |
 
 ### Contributors
 

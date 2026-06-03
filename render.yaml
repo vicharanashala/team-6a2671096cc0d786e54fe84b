@@ -1,0 +1,38 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: faq-generator-api
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      # You will need to manually set this in the Render dashboard to the frontend URL
+      - key: CLIENT_URL
+        sync: false
+
+  # Frontend Static Site
+  - type: web
+    name: faq-generator-frontend
+    env: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: faq-generator-api
+          envVarKey: RENDER_EXTERNAL_URL

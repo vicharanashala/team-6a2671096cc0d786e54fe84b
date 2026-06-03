@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 
 const Chatbot = () => {
@@ -97,17 +98,29 @@ const Chatbot = () => {
         ? "text-blue-100 hover:text-white underline font-semibold transition-colors"
         : "text-blue-600 hover:text-blue-800 underline font-semibold transition-colors";
 
-      parts.push(
-        <a
-          key={match.index}
-          href={linkUrl}
-          target={isInternal ? undefined : "_blank"}
-          rel={isInternal ? undefined : "noopener noreferrer"}
-          className={linkClass}
-        >
-          {linkText}
-        </a>
-      );
+      if (isInternal) {
+        parts.push(
+          <Link
+            key={match.index}
+            to={linkUrl}
+            className={linkClass}
+          >
+            {linkText}
+          </Link>
+        );
+      } else {
+        parts.push(
+          <a
+            key={match.index}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClass}
+          >
+            {linkText}
+          </a>
+        );
+      }
 
       lastIndex = regex.lastIndex;
     }

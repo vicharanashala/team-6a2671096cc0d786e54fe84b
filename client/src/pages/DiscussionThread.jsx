@@ -23,6 +23,26 @@ const DiscussionThread = () => {
 
   useEffect(() => { if (id) fetch(); }, [id]);
 
+  const deleteDiscussion = async () => {
+    if (!confirm('Are you sure you want to delete this discussion?')) return;
+    try {
+      await api.delete(`/api/discussions/${id}`);
+      window.location.href = '/discussions';
+    } catch (err) {
+      console.error('Delete failed', err);
+    }
+  };
+
+  const deleteReply = async (replyId) => {
+    if (!confirm('Are you sure you want to delete this reply?')) return;
+    try {
+      await api.delete(`/api/discussions/replies/${replyId}`);
+      fetch();
+    } catch (err) {
+      console.error('Delete failed', err);
+    }
+  };
+
   const postReply = async (e) => {
     e && e.preventDefault();
     if (!text) return;
@@ -51,8 +71,17 @@ const DiscussionThread = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold">{discussion.title}</h1>
-      <div className="text-sm text-gray-600 mb-4">by {discussion.author?.username || 'Unknown'}</div>
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h1 className="text-2xl font-bold">{discussion.title}</h1>
+          <div className="text-sm text-gray-600">by {discussion.author?.username || 'Unknown'}</div>
+        </div>
+        {(user?.role === 'ADMIN' || user?._id === discussion.author?._id) && (
+          <button onClick={deleteDiscussion} className="text-red-500 hover:text-red-700 text-lg" title="Delete Discussion">
+            🗑️
+          </button>
+        )}
+      </div>
       <p className="bg-white p-4 rounded shadow-sm">{discussion.text}</p>
 
       <div className="mt-6">
@@ -67,6 +96,11 @@ const DiscussionThread = () => {
                   <div className="text-sm text-gray-600">{new Date(r.created_at).toLocaleString()}</div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {(user?.role === 'ADMIN' || user?._id === r.author?._id || user?._id === r.author) && (
+                    <button onClick={() => deleteReply(r._id)} className="mr-2 text-red-500 hover:text-red-700" title="Delete Reply">
+                      🗑️
+                    </button>
+                  )}
                   <button onClick={() => vote(r._id, 1)} className="px-2 py-1 bg-green-50 text-green-600 rounded">▲ {Array.isArray(r.upvotes)? r.upvotes.length : (r.upvotes?1:0)}</button>
                   <button onClick={() => vote(r._id, -1)} className="px-2 py-1 bg-red-50 text-red-600 rounded">▼ {Array.isArray(r.downvotes)? r.downvotes.length : 0}</button>
                 </div>

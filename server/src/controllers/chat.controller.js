@@ -28,7 +28,7 @@ ${faqContext}
 INSTRUCTIONS:
 1. Use ONLY the provided FAQs above to answer the user's question. Do NOT make up answers, assume details, or use external knowledge.
 2. If the user's query can be answered using the FAQs, answer it clearly and concisely. Mention the FAQ category if it is helpful.
-3. If the user asks something that is NOT covered by the FAQs (or is completely unrelated), politely explain that you do not have that information in the current FAQs. Suggest that they visit the [Discussion Forum](/forum) (where they can ask the community) or submit their question directly to the administrators using the [Submit Question](/submit-question) page.
+3. If the user asks something that is NOT covered by the FAQs (or is completely unrelated), politely explain that you do not have that information in the current FAQs. Suggest that they visit the [Discussion Forum](/discussions) (where they can ask the community) or submit their question directly to the administrators using the [Submit Question](/submit-question) page.
 4. Be polite, friendly, and professional. Keep answers relatively short and easy to read.`;
 
     // Initialize the model with system instruction (using gemini-2.5-flash which is supported by the API key)

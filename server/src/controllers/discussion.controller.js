@@ -1,6 +1,7 @@
 import Discussion from '../models/Discussion.js';
 import Reply from '../models/Reply.js';
 import User from '../models/User.js';
+import FAQ from '../models/FAQ.js';
 
 // Create a new discussion
 export const createDiscussion = async (req, res) => {
@@ -103,22 +104,31 @@ export const voteReply = async (req, res) => {
     const hasDown = reply.downvotes.map(String).includes(userId);
 
     if (vote === 1) {
-      if (hasUp) return res.json({ message: 'Already upvoted.' });
-      if (hasDown) {
-        reply.downvotes = reply.downvotes.filter(u => u.toString() !== userId);
-      }
-      reply.upvotes.push(req.user._id);
-    } else {
-      if (hasDown) return res.json({ message: 'Already downvoted.' });
       if (hasUp) {
         reply.upvotes = reply.upvotes.filter(u => u.toString() !== userId);
+      } else {
+        if (hasDown) {
+          reply.downvotes = reply.downvotes.filter(u => u.toString() !== userId);
+        }
+        reply.upvotes.push(req.user._id);
       }
-      reply.downvotes.push(req.user._id);
+    } else {
+      if (hasDown) {
+        reply.downvotes = reply.downvotes.filter(u => u.toString() !== userId);
+      } else {
+        if (hasUp) {
+          reply.upvotes = reply.upvotes.filter(u => u.toString() !== userId);
+        }
+        reply.downvotes.push(req.user._id);
+      }
     }
 
     // moderation logic
-    if (reply.upvotes.length >= 10) reply.isFaqCandidate = true;
-    if (reply.downvotes.length >= 5) reply.isFlagged = true;
+    const upvoteThreshold = parseInt(process.env.FAQ_CANDIDATE_THRESHOLD) || 10;
+    const downvoteThreshold = parseInt(process.env.FLAG_THRESHOLD) || 5;
+    
+    reply.isFaqCandidate = reply.upvotes.length >= upvoteThreshold;
+    reply.isFlagged = reply.downvotes.length >= downvoteThreshold;
 
     await reply.save();
 
@@ -133,3 +143,107 @@ export const voteReply = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Delete a discussion and all its replies
+export const deleteDiscussion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const discussion = await Discussion.findById(id);
+    if (!discussion) return res.status(404).json({ error: 'Discussion not found.' });
+
+    if (req.user.role !== 'ADMIN' && req.user._id.toString() !== discussion.author.toString()) {
+      return res.status(403).json({ error: 'Not authorized to delete this discussion.' });
+    }
+
+    await Discussion.findByIdAndDelete(id);
+    await Reply.deleteMany({ discussion: id });
+
+    res.json({ message: 'Discussion deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete a single reply
+export const deleteReply = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reply = await Reply.findById(id);
+    if (!reply) return res.status(404).json({ error: 'Reply not found.' });
+
+    if (req.user.role !== 'ADMIN' && req.user._id.toString() !== reply.author.toString()) {
+      return res.status(403).json({ error: 'Not authorized to delete this reply.' });
+    }
+
+    await Reply.findByIdAndDelete(id);
+    await Discussion.findByIdAndUpdate(reply.discussion, { $inc: { replies_count: -1 } });
+
+    res.json({ message: 'Reply deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getModerationItems = async (req, res) => {
+  try {
+    const flagged = await Reply.find({ isFlagged: true })
+      .populate('author', 'username email')
+      .populate('discussion', 'title category')
+      .sort({ downvotes: -1 });
+      
+    const candidates = await Reply.find({ isFaqCandidate: true })
+      .populate('author', 'username email')
+      .populate('discussion', 'title category')
+      .sort({ upvotes: -1 });
+
+    res.json({ flagged, candidates });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const dismissFlag = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reply = await Reply.findById(id);
+    if (!reply) return res.status(404).json({ error: 'Reply not found.' });
+
+    reply.isFlagged = false;
+    reply.downvotes = [];
+    await reply.save();
+
+    res.json({ message: 'Flag dismissed.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const promoteToFAQ = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reply = await Reply.findById(id).populate('discussion', 'title category');
+    if (!reply) return res.status(404).json({ error: 'Reply not found.' });
+
+    const faq = new FAQ({
+      question: reply.discussion.title,
+      answer: reply.text,
+      category: reply.discussion.category,
+      status: 'draft',
+      created_by: req.user._id
+    });
+    await faq.save();
+
+    reply.isFaqCandidate = false; // Reset candidate status
+    await reply.save();
+    
+    await Discussion.findByIdAndUpdate(reply.discussion._id, { 
+      promoted_to_faq: true,
+      promoted_faq_id: faq._id
+    });
+
+    res.json({ message: 'Promoted to FAQ as draft.', faq });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

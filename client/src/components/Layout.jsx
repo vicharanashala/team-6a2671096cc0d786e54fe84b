@@ -33,6 +33,9 @@ const Layout = () => {
                     <Link to="/admin/questions" className="px-3 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium">
                       Questions
                     </Link>
+                    <Link to="/admin/discussions" className="px-3 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium">
+                      Forum Mod
+                    </Link>
                     <Link to="/admin/faqs" className="px-3 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium">
                       FAQs
                     </Link>
@@ -136,6 +139,13 @@ const Layout = () => {
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           Questions
+                        </Link>
+                        <Link 
+                          to="/admin/discussions" 
+                          className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded text-sm font-medium"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Forum Mod
                         </Link>
                         <Link 
                           to="/admin/faqs" 

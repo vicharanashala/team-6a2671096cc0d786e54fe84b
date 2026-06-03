@@ -11,7 +11,8 @@
 
 *Developed by [Team One](CONTRIBUTING.md) as an academic project*
 
-
+### 🚀 [Try the Live Demo Here!](https://your-frontend-url.onrender.com)
+*(Note: Please replace the link above with your actual Render frontend URL)*
 
 </div>
 
@@ -183,7 +184,15 @@ https://backendfaq.onrender.com
 
 ## Deployment
 
-### Both Frontend & Backend on Render
+### Both Frontend & Backend on Render (Via Blueprint)
+
+The easiest way to deploy this project is using the included `render.yaml` Blueprint.
+1. Create an account on [Render](https://render.com)
+2. Click **New +** -> **Blueprint**
+3. Connect your repository. Render will automatically configure and build both the Web Service and Static Site!
+4. Once deployed, add your `MONGODB_URI`, `GEMINI_API_KEY`, and `CLIENT_URL` to the Web Service environment variables.
+
+### Manual Setup (Without Blueprint)
 
 #### Backend - Render (Web Service)
 | Setting | Value |

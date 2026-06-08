@@ -244,6 +244,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Built with MERN Stack + Google Gemini AI**
+**Built with MERN Stack**
 
 </div>

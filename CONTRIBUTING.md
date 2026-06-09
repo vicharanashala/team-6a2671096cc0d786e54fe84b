@@ -33,17 +33,16 @@
 
 | Name | Email | GitHub |
 |------|-------|--------|
-| Bhavesh Malviya | 23bcp254@sot.pdpu.ac.in | [@BhaveshMalviya](https://github.com/BhaveshMalviya) |
-| Anoogna Gunjari | anoognagunjari@gmail.com | [@anoognagunjari](https://github.com/anoognagunjari) |
-| Yash Parmar | yparmar24020@gmail.com | [@yashparmar](https://github.com/yashparmar) |
-| Muskan Kumari | muskankumari5386@gmail.com | [@MuskanKumari](https://github.com/tulipcoder) |
+| Poorti Swarup [LEAD] | poortiswarup1306@gmail.com | [@Codeindespair](https://github.com/codeindespair) |
+| Anoogna Gunjari | anoognagunjari@gmail.com | [@Anoogna](https://github.com/Anoogna) |
+| Yash Parmar | yparmar24020@gmail.com | [@YashParmar27](https://github.com/YashParmar27) |
+| Muskan Kumari | muskankumari5386@gmail.com | [@tulipcoder](https://github.com/tulipcoder) |
 | Siddharth Sadhu | siddharthsadhu28@gmail.com | [@siddharthsadhu](https://github.com/siddharthsadhu) |
-| Swanand Sirsikar | swanand.sirsikar@gmail.com | [@swanandsirsikar](https://github.com/swanandsirsikar) |
-| Govind Upadhyay | govindupadhyay1307@gmail.com | [@govindupadhyay](https://github.com/govindupadhyay) |
-| Muralikrishnan N | muralikrishnan2k7@gmail.com | [@muralikrishnan](https://github.com/muralikrishnan) |
-| P Lokesh Reddy | plokeshreddy5678@gmail.com | [@plokeshreddy](https://github.com/plokeshreddy) |
-| Poorti Swarup | poortiswarup1306@gmail.com | [@poortiswarup](https://github.com/poortiswarup) |
-| Purandareswari Kaki | purandareswarikaki27@gmail.com | [@purandareswari](https://github.com/purandareswari) |
+| Aakashi Singh | aakashisingh4671@gmail.com | [@aakashisingh4671-pixel](https://github.com/aakashisingh4671-pixel) |
+|Jatin Kumar | jatinkumar1101@gmail.com | [@jatin110105](https://github.com/jatin110105) |
+| Muralikrishnan N | muralikrishnan2k7@gmail.com | [@murali-33011](https://github.com/murali-33011) |
+| Sneha | rajpootsneha831@gmail.com | [@sneha-techiee](https://github.com/sneha-techiee) |
+| N Vardhana | nallavardhana292@gmail.com | [@vardhana292](https://github.com/vardhana292) |
 
 ---
 

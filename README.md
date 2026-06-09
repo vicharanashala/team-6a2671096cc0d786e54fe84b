@@ -41,6 +41,9 @@ A full-stack MERN application for crowdsourced FAQ management, featuring an AI-p
 - Create and reply to discussion threads
 - Upvote or downvote replies in discussions
 - Delete own discussions and replies
+- Rate responses
+- Can submit their queries to the ai-powered chatbot
+- Keep a track of their queries
 
 ### Admin
 - **Question Management** — View, categorize, group, and reject submitted questions

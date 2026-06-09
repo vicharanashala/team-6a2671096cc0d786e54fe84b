@@ -7,7 +7,7 @@
 
 A full-stack MERN application for crowdsourced FAQ management, featuring an AI-powered suggestion pipeline using Google Gemini Pro, a community discussion forum with moderation tools, and a comprehensive admin dashboard.
 
-**Live Application:** https://your-frontend-url.onrender.com  
+**Live Application:** https://faq-generator-frontend.onrender.com  
 **Backend API:** https://faq-generator-api.onrender.com
 
 ---

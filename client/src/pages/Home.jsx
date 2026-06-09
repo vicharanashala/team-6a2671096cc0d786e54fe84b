@@ -74,8 +74,8 @@ const Home = () => {
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
+      const dateA = new Date(a.created_at);
+      const dateB = new Date(b.created_at);
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
 

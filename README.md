@@ -55,6 +55,7 @@ A full-stack MERN application for crowdsourced FAQ management, featuring an AI-p
 - **Analytics Dashboard** — Charts and statistics on logins, questions submitted, and FAQ views
 - **Discussion Moderation Dashboard** — Review flagged replies (auto-flagged at 5 downvotes), dismiss flags, or promote high-quality replies (auto-nominated at 10 upvotes) directly to a draft FAQ
 - **AI Chatbot** — Floating chatbot widget powered by Gemini Pro, contextualized with published FAQs, with internal deep-links to relevant discussions
+- **Discourse-Powered FAQ Discovery** — Connect any Discourse forum, pick a category + date range, and let Gemini cluster recurring discussions into draft FAQ suggestions. Admins review/approve/edit/reject each suggestion; approved ones flow into the existing FAQ pipeline as drafts. Public Discourse categories work without an API key. See the [demo walkthrough](docs/discourse-module/discourse-demo-walkthrough.md) for a click-by-click guide.
 
 ---
 
@@ -143,6 +144,10 @@ Server (Express.js — Render Web Service)
     │   │   └── auth.js       # authenticate, requireAdmin, optionalAuth
     │   └── services/         # External service integrations (Gemini, email)
     └── .env.example
+│
+├── docs/                       # Module documentation
+│   └── discourse-module/      # Discourse FAQ discovery module
+│       └── discourse-demo-walkthrough.md
 ```
 
 ---
@@ -284,6 +289,24 @@ Authentication is via a Bearer token in the `Authorization` header.
 |--------|----------|------|----------------------------------------|
 | POST   | `/`      | None | Send a message to the AI FAQ assistant |
 
+### Discourse — `/api/discourse` (admin-only)
+
+| Method | Path | Description |
+|---|---|---|
+| GET    | `/sources` | List configured Discourse sources |
+| POST   | `/sources` | Create a Discourse source (`name`, `baseUrl`, optional `apiKey`/`apiUsername`, `channel`) |
+| PATCH  | `/sources/:id` | Update a source |
+| DELETE | `/sources/:id` | Delete a source (cascades to its suggestions and jobs) |
+| POST   | `/sources/:id/test` | Test connection — returns post count from the last 7 days |
+| POST   | `/sources/:id/analyze` | Start an analyze job (`{ range: "7d" \| "30d" \| "90d" \| { from, to } }`) |
+| GET    | `/jobs/:requestId` | Poll job status (`step`, `progress`, `suggestionIds`) |
+| GET    | `/runs` | List recent analyze runs (for the Review Queue filter) |
+| GET    | `/suggestions` | List suggestions (`?status=&sourceId=&runId=`) |
+| GET    | `/suggestions/:id` | Get one suggestion |
+| PATCH  | `/suggestions/:id/review` | Review a suggestion: `{ action: "approve" \| "reject" \| "edit", overrides? }` |
+| DELETE | `/suggestions/:id` | Delete a suggestion |
+| GET    | `/suggestions-export/csv` | Export all suggestions to CSV |
+
 ---
 
 ## Deployment
@@ -362,6 +385,7 @@ Admin publishes
 |---|---|
 | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Architecture deep-dive, workflow, and code examples |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Team info and contribution guidelines |
+| [docs/discourse-module/discourse-demo-walkthrough.md](docs/discourse-module/discourse-demo-walkthrough.md) | Step-by-step demo of the Discourse-powered FAQ discovery module |
 
 ---
 

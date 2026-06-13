@@ -10,6 +10,7 @@ import activityRoutes from './routes/activity.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import discussionRoutes from './routes/discussion.routes.js';
+import discourseRoutes from './routes/discourse.routes.js';
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ app.get('/', (req, res) => {
   res.json({ 
     name: 'FAQ Generator API',
     version: '1.0.0',
-    endpoints: ['/api/auth', '/api/questions', '/api/faqs', '/api/users']
+    endpoints: ['/api/auth', '/api/questions', '/api/faqs', '/api/users', '/api/discourse']
   });
 });
 
@@ -44,6 +45,7 @@ app.use('/api/activities', activityRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/discussions', discussionRoutes);
+app.use('/api/discourse', discourseRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

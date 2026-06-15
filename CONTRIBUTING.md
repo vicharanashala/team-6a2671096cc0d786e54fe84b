@@ -39,7 +39,7 @@
 | Muskan Kumari | muskankumari5386@gmail.com | [@tulipcoder](https://github.com/tulipcoder) |
 | Siddharth Sadhu | siddharthsadhu28@gmail.com | [@siddharthsadhu](https://github.com/siddharthsadhu) |
 | Muralikrishnan N | muralikrishnan2k7@gmail.com | [@murali-33011](https://github.com/murali-33011) |
-
+| Jatin Kumar | jatinkumar1101@gmail.com | [@jatin110105](https://github.com/jatin110105) |
 ---
 
 ## Project Structure

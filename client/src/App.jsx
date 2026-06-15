@@ -16,6 +16,7 @@ import ResetPassword from './pages/ResetPassword';
 import Discussions from './pages/Discussions';
 import DiscussionThread from './pages/DiscussionThread';
 import AdminDiscussions from './pages/AdminDiscussions';
+import AdminDiscourse from './pages/AdminDiscourse';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -61,6 +62,9 @@ function AppRoutes() {
         } />
         <Route path="admin/discussions" element={
           <ProtectedRoute adminOnly><AdminDiscussions /></ProtectedRoute>
+        } />
+        <Route path="admin/discourse" element={
+          <ProtectedRoute adminOnly><AdminDiscourse /></ProtectedRoute>
         } />
         <Route path="admin/faqs" element={
           <ProtectedRoute adminOnly><AdminFAQs /></ProtectedRoute>

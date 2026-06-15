@@ -48,6 +48,9 @@ const Layout = () => {
                     <Link to="/admin/analytics" className="px-3 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium">
                       Analytics
                     </Link>
+                    <Link to="/admin/discourse" className="px-3 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium">
+                      Discourse
+                    </Link>
                   </>
                 )}
               </div>
@@ -168,12 +171,19 @@ const Layout = () => {
                         >
                           Activities
                         </Link>
-                        <Link 
-                          to="/admin/analytics" 
+                        <Link
+                          to="/admin/analytics"
                           className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded text-sm font-medium"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           Analytics
+                        </Link>
+                        <Link
+                          to="/admin/discourse"
+                          className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded text-sm font-medium"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Discourse
                         </Link>
                       </>
                     )}

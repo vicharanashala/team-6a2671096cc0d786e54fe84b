@@ -16,6 +16,7 @@ const faqSchema = new mongoose.Schema({
   average_rating: { type: Number, default: 0 },
   needs_review: { type: Boolean, default: false },
   is_ai_generated: { type: Boolean, default: false },
+  metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }

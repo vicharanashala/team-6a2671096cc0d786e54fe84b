@@ -33,6 +33,7 @@ A full-stack MERN application for crowdsourced FAQ management, featuring an AI-p
 - Rate individual FAQs (1–5 stars)
 - Submit questions as a guest (no account required) or as a registered user
 - View and participate in community discussion threads
+- Sort published FAQs by newest/oldest, view live FAQ counter, and use "Back to Top" navigation helper
 
 ### Authenticated Users
 - Register and log in with JWT-based authentication
@@ -49,13 +50,13 @@ A full-stack MERN application for crowdsourced FAQ management, featuring an AI-p
 - **Question Management** — View, categorize, group, and reject submitted questions
 - **AI FAQ Pipeline** — Select grouped questions and trigger Google Gemini Pro to auto-suggest a draft FAQ
 - **FAQ Lifecycle Management** — Move FAQs through the full pipeline: `suggested -> draft -> approved -> published`; edit and delete at any stage
-- **Bulk Operations** — Import questions/FAQs in bulk; export published FAQs to CSV
-- **User Management** — View all users, update roles, and delete accounts
-- **Activity Log** — Full audit trail of user actions across the platform
+- **Bulk Operations & CSV Import** — Bulk import questions or FAQs via formatted text or directly by uploading CSV files with custom column parsing; export published FAQs to CSV
+- **User Management & Export** — View all users, update roles, delete accounts, and export user records to CSV
+- **Activity Log & Audit Export** — Full audit trail of user actions across the platform with search/filter controls and CSV export
 - **Analytics Dashboard** — Charts and statistics on logins, questions submitted, and FAQ views
 - **Discussion Moderation Dashboard** — Review flagged replies (auto-flagged at 5 downvotes), dismiss flags, or promote high-quality replies (auto-nominated at 10 upvotes) directly to a draft FAQ
 - **AI Chatbot** — Floating chatbot widget powered by Gemini Pro, contextualized with published FAQs, with internal deep-links to relevant discussions
-- **Discourse-Powered FAQ Discovery** — Connect any Discourse forum, pick a category + date range, and let Gemini cluster recurring discussions into draft FAQ suggestions. Admins review/approve/edit/reject each suggestion; approved ones flow into the existing FAQ pipeline as drafts. Public Discourse categories work without an API key. See the [demo walkthrough](docs/discourse-module/discourse-demo-walkthrough.md) for a click-by-click guide.
+- **Discourse-Powered FAQ Discovery** — Connect any Discourse forum via a dedicated Admin Discourse tab, configure sources, pick a category + date range, and let Gemini cluster recurring discussions into draft FAQ suggestions. Admins review/approve/edit/reject each suggestion; approved ones flow into the existing FAQ pipeline as drafts. Public Discourse categories work without an API key.
 
 ---
 
@@ -96,8 +97,8 @@ Server (Express.js — Render Web Service)
 | `FAQ`          | question, answer, category, status (suggested / draft / approved / published / rejected), is_ai_generated, views, average_rating |
 | `Discussion`   | title, text, category, author, replies_count, status (open / closed)                             |
 | `Reply`        | text, author, discussion, upvotes[], downvotes[], isFaqCandidate, isFlagged                      |
-| `Activity`     | user, action, metadata, timestamp                                                                |
-| `Notification` | user, message, read, timestamp                                                                   |
+| `Activity`     | type, description, entity_type, entity_id, user_id, user_email, user_name, metadata, is_ai_generated, created_at |
+| `Notification` | user_id, email, type, title, message, related_question_id, related_faq_id, is_read, metadata, created_at |
 
 ---
 
@@ -124,7 +125,8 @@ Server (Express.js — Render Web Service)
 │   │   │   ├── AdminUsers.jsx
 │   │   │   ├── AdminActivities.jsx
 │   │   │   ├── AdminAnalytics.jsx
-│   │   │   └── AdminDiscussions.jsx   # Moderation dashboard
+│   │   │   ├── AdminDiscussions.jsx   # Moderation dashboard
+│   │   │   └── AdminDiscourse.jsx     # Discourse connection & FAQ discovery module
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   └── services/
@@ -146,8 +148,6 @@ Server (Express.js — Render Web Service)
     └── .env.example
 │
 ├── docs/                       # Module documentation
-│   └── discourse-module/      # Discourse FAQ discovery module
-│       └── discourse-demo-walkthrough.md
 ```
 
 ---
@@ -249,6 +249,14 @@ Authentication is via a Bearer token in the `Authorization` header.
 | PATCH  | `/:id/view`     | None  | Increment the view counter             |
 | POST   | `/:id/rate`     | None  | Submit a star rating for a FAQ         |
 | DELETE | `/:id`          | Admin | Delete a FAQ                           |
+
+### Notifications — `/api/notifications`
+
+| Method | Endpoint    | Auth | Description                                                                                |
+|--------|-------------|------|--------------------------------------------------------------------------------------------|
+| GET    | `/`         | Auth | Get current user's notifications (supports pagination `limit`/`offset` and `unreadOnly=true`) |
+| PATCH  | `/:id/read` | Auth | Mark a specific notification as read                                                       |
+| PATCH  | `/read-all` | Auth | Mark all notifications as read                                                             |
 
 ### Discussions — `/api/discussions`
 
@@ -387,7 +395,20 @@ Admin publishes
 |---|---|
 | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Architecture deep-dive, workflow, and code examples |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Team info and contribution guidelines |
-| [docs/discourse-module/discourse-demo-walkthrough.md](docs/discourse-module/discourse-demo-walkthrough.md) | Step-by-step demo of the Discourse-powered FAQ discovery module |
+
+---
+
+## Bulk Import Format Guidelines
+
+When importing questions or FAQs, you can either enter rows manually using a pipe separator (`|`) or upload a standard `.csv` file.
+
+### 1. Question Bulk Import
+- **Text Format (manual paste)**: `question_text | category` (One question per line. Category is optional and defaults to "general").
+- **CSV Upload**: Must contain a header column named `question`. An optional header column named `category` is supported.
+
+### 2. FAQ Bulk Import
+- **Text Format (manual paste)**: `question | answer | category` (One FAQ per line. Category is optional and defaults to "general").
+- **CSV Upload**: Must contain header columns named `question` and `answer`. An optional header column named `category` is supported.
 
 ---
 

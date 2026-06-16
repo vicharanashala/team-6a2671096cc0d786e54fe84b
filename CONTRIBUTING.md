@@ -331,21 +331,3 @@ app.use('/api/example', exampleRoutes);
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
----
-
-## Contact
-
-For questions or collaboration, reach out to the team:
-
-- **Project Lead**: Vicky Kumar - [@FiscalMindset](https://github.com/FiscalMindset)
-- **Repository**: https://github.com/FiscalMindset/FAQ
-
----
-
-<div align="center">
-
-**© 2026 Team One - Academic Project**
-
-*Built with MERN Stack + Google Gemini AI*
-
-</div>

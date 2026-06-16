@@ -37,8 +37,11 @@
 | Yash Parmar | yparmar24020@gmail.com | [@YashParmar27](https://github.com/YashParmar27) |
 | Muskan Kumari | muskankumari5386@gmail.com | [@tulipcoder](https://github.com/tulipcoder) |
 | Siddharth Sadhu | siddharthsadhu28@gmail.com | [@siddharthsadhu](https://github.com/siddharthsadhu) |
+| Aakashi Singh | aakashisingh4671@gmail.com | [@aakashisingh4671-pixel](https://github.com/aakashisingh4671-pixel) |
+|Jatin Kumar | jatinkumar1101@gmail.com | [@jatin110105](https://github.com/jatin110105) |
 | Muralikrishnan N | muralikrishnan2k7@gmail.com | [@murali-33011](https://github.com/murali-33011) |
-| Jatin Kumar | jatinkumar1101@gmail.com | [@jatin110105](https://github.com/jatin110105) |
+| Sneha | rajpootsneha831@gmail.com | [@sneha-techiee](https://github.com/sneha-techiee) |
+| N Vardhana | nallavardhana292@gmail.com | [@vardhana292](https://github.com/vardhana292) |
 ---
 
 ## Project Structure

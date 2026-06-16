@@ -6,7 +6,6 @@
 ![Stack](https://img.shields.io/badge/stack-MERN%20%2B%20Gemini-green)
 ![Status](https://img.shields.io/badge/status-active-success)
 
-**A collaborative academic project by Team One**
 
 *Built as a comprehensive FAQ management system with AI-powered features*
 
@@ -19,12 +18,12 @@
 **FAQ Generator** is a production-ready MERN stack application that allows organizations to efficiently manage frequently asked questions with the help of AI.
 
 ### Key Features
-- 🤖 **AI-Powered** - Uses Google Gemini Pro to generate comprehensive FAQs from grouped questions
-- 👥 **Role-Based Access** - USER and ADMIN roles with appropriate permissions
-- ✅ **Approval Workflow** - Complete pipeline from question submission to FAQ publication
-- 📊 **Analytics** - Track user activity, question metrics, and FAQ engagement
-- 📦 **Bulk Operations** - Import/export questions and FAQs via CSV
-- 📱 **Responsive** - Works seamlessly on desktop and mobile devices
+-  **AI-Powered** - Uses Google Gemini Pro to generate comprehensive FAQs from grouped questions
+-  **Role-Based Access** - USER and ADMIN roles with appropriate permissions
+-  **Approval Workflow** - Complete pipeline from question submission to FAQ publication
+-  **Analytics** - Track user activity, question metrics, and FAQ engagement
+-  **Bulk Operations** - Import/export questions and FAQs via CSV
+-  **Responsive** - Works seamlessly on desktop and mobile devices
 
 ---
 
